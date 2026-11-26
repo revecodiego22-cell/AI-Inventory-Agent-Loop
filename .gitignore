@@ -8,6 +8,4 @@ htmlcov/
 dist/
 build/
 *.egg-info/
-products.csv
-conversation_log.csv
 .python-version

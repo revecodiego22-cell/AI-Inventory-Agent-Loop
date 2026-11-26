@@ -184,3 +184,64 @@ def test_low_stock_alerts_tool():
         
         assert "alerts" in result
         mock_api.assert_called_once_with("GET", "/inventory/alerts", {})
+
+
+def test_agent_two_consecutive_turns_no_null_tool_calls(temp_conversation_log):
+    """Test two consecutive turns without null tool_calls in history."""
+    
+    with patch('agent.CONVERSATION_LOG', temp_conversation_log):
+        with patch('agent.client') as mock_client:
+            with patch('agent.call_api') as mock_api:
+                import agent
+                agent.call_api = mock_api
+                
+                # First turn: list_inventory tool call
+                tool_call_1 = MagicMock()
+                tool_call_1.id = "call_1"
+                tool_call_1.function.name = "list_inventory"
+                tool_call_1.function.arguments = "{}"
+                
+                first_response = MagicMock()
+                first_response.choices = [MagicMock()]
+                first_response.choices[0].message.content = ""
+                first_response.choices[0].message.tool_calls = [tool_call_1]
+                
+                # First response after tool execution: final answer
+                second_response = MagicMock()
+                second_response.choices = [MagicMock()]
+                second_response.choices[0].message.content = "Inventario obtenido"
+                second_response.choices[0].message.tool_calls = None
+                
+                # Second turn: no tool calls, just text
+                third_response = MagicMock()
+                third_response.choices = [MagicMock()]
+                third_response.choices[0].message.content = "Listo para ayudarte"
+                third_response.choices[0].message.tool_calls = None
+                
+                mock_client.chat.completions.create.side_effect = [
+                    first_response,
+                    second_response,
+                    third_response,
+                ]
+                
+                mock_api.return_value = {
+                    "inventory": [
+                        {"id": 1, "name": "Café", "quantity": 10, "unit": "kg"}
+                    ]
+                }
+                
+                agent.init_conversation_log()
+                messages = [{"role": "system", "content": agent.SYSTEM_PROMPT}]
+                
+                # First turn
+                response1, messages = agent.run_agent_loop("¿Cuál es el inventario?", messages)
+                assert response1 == "Inventario obtenido"
+                
+                # Second turn
+                response2, messages = agent.run_agent_loop("¿Puedes ayudarme?", messages)
+                assert response2 == "Listo para ayudarte"
+                
+                # Verify no message has tool_calls=None
+                for msg in messages:
+                    assert "tool_calls" not in msg or msg["tool_calls"] is not None, \
+                        f"Found message with tool_calls=None: {msg}"

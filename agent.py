@@ -12,7 +12,7 @@ from openai import OpenAI
 load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "mixtral-8x7b-32768")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
 INVENTORY_API_URL = os.getenv("INVENTORY_API_URL", "http://localhost:8000")
 CONVERSATION_LOG = Path("conversation_log.csv")
 
@@ -25,6 +25,9 @@ SYSTEM_PROMPT = """Eres Carla, una asistente inteligente de inventario de cafete
 Tu objetivo es ayudar a gestionar el inventario de productos.
 
 Reglas:
+- Para agregar un producto nuevo que no existe, llama directamente a add_product sin preguntar.
+- Si mencionan "recibimos" o "llegaron", usa update_stock con delta positivo.
+- Si mencionan "vendimos" o "se vendieron", usa update_stock con delta negativo.
 - Para actualizar stock por nombre, primero llama a list_inventory para obtener el ID del producto.
 - Responde siempre en español, corto y directo.
 - Nunca inventes productos ni IDs que no existan.
@@ -43,7 +46,7 @@ def init_conversation_log():
 
 
 def log_event(actor: str, message: str, tool_call: Optional[str] = None):
-    """Log an event to conversation log."""
+    """Log an event to conversation log (compact JSON)."""
     timestamp = datetime.now(timezone.utc).isoformat()
     with open(CONVERSATION_LOG, "a", newline="") as f:
         writer = csv.writer(f)
@@ -178,7 +181,7 @@ TOOLS = [
 
 
 def execute_tool(tool_name: str, tool_input: dict) -> str:
-    """Execute a tool and return the result as a string."""
+    """Execute a tool and return the result as compact JSON (single line)."""
     if tool_name == "list_inventory":
         result = list_inventory()
     elif tool_name == "add_product":
@@ -193,7 +196,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> str:
     else:
         result = f"Herramienta desconocida: {tool_name}"
     
-    return json.dumps(result, ensure_ascii=False, indent=2)
+    return json.dumps(result, ensure_ascii=False)
 
 
 def run_agent_loop(user_input: str, messages: list[dict]) -> tuple[str, list[dict]]:
@@ -223,27 +226,26 @@ def run_agent_loop(user_input: str, messages: list[dict]) -> tuple[str, list[dic
         
         assistant_message = response.choices[0].message
         
-        messages.append(
-            {
-                "role": "assistant",
-                "content": assistant_message.content or "",
-                "tool_calls": (
-                    [
-                        {
-                            "id": tc.id,
-                            "type": "function",
-                            "function": {
-                                "name": tc.function.name,
-                                "arguments": tc.function.arguments,
-                            },
-                        }
-                        for tc in assistant_message.tool_calls
-                    ]
-                    if assistant_message.tool_calls
-                    else None
-                ),
-            }
-        )
+        # Build assistant message - only include tool_calls if they exist
+        assistant_msg = {
+            "role": "assistant",
+            "content": assistant_message.content or "",
+        }
+        
+        if assistant_message.tool_calls:
+            assistant_msg["tool_calls"] = [
+                {
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {
+                        "name": tc.function.name,
+                        "arguments": tc.function.arguments,
+                    },
+                }
+                for tc in assistant_message.tool_calls
+            ]
+        
+        messages.append(assistant_msg)
         
         if not assistant_message.tool_calls:
             final_response = assistant_message.content or "No hay respuesta disponible."
