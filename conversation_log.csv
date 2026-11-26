@@ -1,0 +1,96 @@
+actor,message,tool_call,timestamp
+user,agrega 20 litros de jugo de naranja y dime que productos estan bajos,,2026-11-26T03:28:48.195958+00:00
+user,recibimos 30 unidades de leche de avena,,2026-11-26T03:28:48.437994+00:00
+user,vendimos 12 kg de cafe arabica,,2026-11-26T03:28:48.487558+00:00
+user,agrega 20 litros de jugo de naranja y dime que productos estan bajos,,2026-11-26T03:31:58.069984+00:00
+agent,{},list_inventory,2026-11-26T03:31:58.918681+00:00
+tool,"{
+  ""inventory"": [
+    {
+      ""name"": ""Leche de Avena"",
+      ""quantity"": 30,
+      ""unit"": ""litros"",
+      ""id"": 1
+    },
+    {
+      ""name"": ""Café Arábica"",
+      ""quantity"": 8,
+      ""unit"": ""kg"",
+      ""id"": 2
+    },
+    {
+      ""name"": ""Vasos Desechables"",
+      ""quantity"": 150,
+      ""unit"": ""unidades"",
+      ""id"": 3
+    },
+    {
+      ""name"": ""Azúcar Moreno"",
+      ""quantity"": 5,
+      ""unit"": ""kg"",
+      ""id"": 4
+    },
+    {
+      ""name"": ""Chocolate en Polvo"",
+      ""quantity"": 12,
+      ""unit"": ""kg"",
+      ""id"": 5
+    },
+    {
+      ""name"": ""Té de Manzanilla"",
+      ""quantity"": 3,
+      ""unit"": ""paquetes"",
+      ""id"": 6
+    },
+    {
+      ""name"": ""Almendras Tostadas"",
+      ""quantity"": 9,
+      ""unit"": ""kg"",
+      ""id"": 7
+    },
+    {
+      ""name"": ""Canela Molida"",
+      ""quantity"": 2,
+      ""unit"": ""kg"",
+      ""id"": 8
+    }
+  ]
+}",list_inventory,2026-11-26T03:31:59.047952+00:00
+agent,"No encuentro “jugo de naranja” en el inventario actual.  
+¿Te gustaría añadirlo como un nuevo producto antes de registrar los 20 l?",,2026-11-26T03:31:59.746893+00:00
+user,recibimos 30 unidades de leche de avena,,2026-11-26T03:31:59.747121+00:00
+user,agrega 20 litros de jugo de naranja y dime que productos estan bajos,,2026-11-26T03:36:44.831435+00:00
+agent,"{""name"": ""jugo de naranja"", ""quantity"": 20, ""unit"": ""litros""}",add_product,2026-11-26T03:36:45.333701+00:00
+tool,"{""name"": ""jugo de naranja"", ""quantity"": 20, ""unit"": ""litros"", ""id"": 9}",add_product,2026-11-26T03:36:45.368808+00:00
+agent,"{""threshold"": 10}",get_low_stock_alerts,2026-11-26T03:36:45.768318+00:00
+tool,"{""alerts"": [{""name"": ""Café Arábica"", ""quantity"": 8, ""unit"": ""kg"", ""id"": 2}, {""name"": ""Azúcar Moreno"", ""quantity"": 5, ""unit"": ""kg"", ""id"": 4}, {""name"": ""Té de Manzanilla"", ""quantity"": 3, ""unit"": ""paquetes"", ""id"": 6}, {""name"": ""Almendras Tostadas"", ""quantity"": 9, ""unit"": ""kg"", ""id"": 7}, {""name"": ""Canela Molida"", ""quantity"": 2, ""unit"": ""kg"", ""id"": 8}]}",get_low_stock_alerts,2026-11-26T03:36:45.789391+00:00
+agent,"Productos con bajo stock:  
+- Café Arábica: 8 kg (ID 2)  
+- Azúcar Moreno: 5 kg (ID 4)  
+- Té de Manzanilla: 3 paquetes (ID 6)  
+- Almendras Tostadas: 9 kg (ID 7)  
+- Canela Molida: 2 kg (ID 8)",,2026-11-26T03:36:46.139842+00:00
+user,recibimos 30 unidades de leche de avena,,2026-11-26T03:36:46.140194+00:00
+agent,{},list_inventory,2026-11-26T03:36:46.455609+00:00
+tool,"{""inventory"": [{""name"": ""Leche de Avena"", ""quantity"": 30, ""unit"": ""litros"", ""id"": 1}, {""name"": ""Café Arábica"", ""quantity"": 8, ""unit"": ""kg"", ""id"": 2}, {""name"": ""Vasos Desechables"", ""quantity"": 150, ""unit"": ""unidades"", ""id"": 3}, {""name"": ""Azúcar Moreno"", ""quantity"": 5, ""unit"": ""kg"", ""id"": 4}, {""name"": ""Chocolate en Polvo"", ""quantity"": 12, ""unit"": ""kg"", ""id"": 5}, {""name"": ""Té de Manzanilla"", ""quantity"": 3, ""unit"": ""paquetes"", ""id"": 6}, {""name"": ""Almendras Tostadas"", ""quantity"": 9, ""unit"": ""kg"", ""id"": 7}, {""name"": ""Canela Molida"", ""quantity"": 2, ""unit"": ""kg"", ""id"": 8}, {""name"": ""jugo de naranja"", ""quantity"": 20, ""unit"": ""litros"", ""id"": 9}]}",list_inventory,2026-11-26T03:36:46.478955+00:00
+agent,"{""delta"": 30, ""product_id"": 1}",update_stock,2026-11-26T03:36:46.785138+00:00
+tool,"{""name"": ""Leche de Avena"", ""quantity"": 60, ""unit"": ""litros"", ""id"": 1}",update_stock,2026-11-26T03:36:46.807771+00:00
+agent,"Se añadió 30 unidades de Leche de Avena.  
+Ahora hay 60 litros de leche de avena en stock.",,2026-11-26T03:36:47.124897+00:00
+user,vendimos 12 kg de cafe arabica,,2026-11-26T03:36:47.125274+00:00
+agent,{},list_inventory,2026-11-26T03:36:47.451345+00:00
+tool,"{""inventory"": [{""name"": ""Leche de Avena"", ""quantity"": 60, ""unit"": ""litros"", ""id"": 1}, {""name"": ""Café Arábica"", ""quantity"": 8, ""unit"": ""kg"", ""id"": 2}, {""name"": ""Vasos Desechables"", ""quantity"": 150, ""unit"": ""unidades"", ""id"": 3}, {""name"": ""Azúcar Moreno"", ""quantity"": 5, ""unit"": ""kg"", ""id"": 4}, {""name"": ""Chocolate en Polvo"", ""quantity"": 12, ""unit"": ""kg"", ""id"": 5}, {""name"": ""Té de Manzanilla"", ""quantity"": 3, ""unit"": ""paquetes"", ""id"": 6}, {""name"": ""Almendras Tostadas"", ""quantity"": 9, ""unit"": ""kg"", ""id"": 7}, {""name"": ""Canela Molida"", ""quantity"": 2, ""unit"": ""kg"", ""id"": 8}, {""name"": ""jugo de naranja"", ""quantity"": 20, ""unit"": ""litros"", ""id"": 9}]}",list_inventory,2026-11-26T03:36:47.471211+00:00
+agent,"{""delta"": -12, ""product_id"": 2}",update_stock,2026-11-26T03:36:48.815039+00:00
+tool,"""Error en API: Client error '400 Bad Request' for url 'http://localhost:8000/inventory/2'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400""",update_stock,2026-11-26T03:36:48.841019+00:00
+agent,"Lo siento, no podemos vender 12 kg de Café Arábica porque solo tenemos 8 kg en stock.  
+Stock actual: 8 kg.",,2026-11-26T03:37:02.573220+00:00
+user,que productos estan bajos?,,2026-11-26T03:37:02.573445+00:00
+agent,"{""threshold"": 10}",get_low_stock_alerts,2026-11-26T03:37:16.069011+00:00
+tool,"{""alerts"": [{""name"": ""Café Arábica"", ""quantity"": 8, ""unit"": ""kg"", ""id"": 2}, {""name"": ""Azúcar Moreno"", ""quantity"": 5, ""unit"": ""kg"", ""id"": 4}, {""name"": ""Té de Manzanilla"", ""quantity"": 3, ""unit"": ""paquetes"", ""id"": 6}, {""name"": ""Almendras Tostadas"", ""quantity"": 9, ""unit"": ""kg"", ""id"": 7}, {""name"": ""Canela Molida"", ""quantity"": 2, ""unit"": ""kg"", ""id"": 8}]}",get_low_stock_alerts,2026-11-26T03:37:16.091438+00:00
+agent,"Productos con bajo stock (menos de 10 unidades):
+
+- Café Arábica: 8 kg (ID 2)  
+- Azúcar Moreno: 5 kg (ID 4)  
+- Té de Manzanilla: 3 paquetes (ID 6)  
+- Almendras Tostadas: 9 kg (ID 7)  
+- Canela Molida: 2 kg (ID 8)",,2026-11-26T03:37:29.628380+00:00
